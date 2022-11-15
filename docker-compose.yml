@@ -1,0 +1,30 @@
+version: '3'
+services:
+  database:
+    container_name: crudmysql_database_container
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    volumes:
+      - ./database/init.sql:/data/application/init.sql
+    command: --init-file /data/application/init.sql
+    networks:
+      - crud_net
+    environment:
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_PASSWORD=12345
+  web:
+    container_name: crudmysql_web_container
+    build: ./application
+    ports: 
+      - 3000:3000
+    networks:
+      - crud_net
+    command: sh -c '/usr/src/app/wait-for-it.sh -t 0 database:3306 -- npm start' 
+    depends_on:
+      - "database"
+networks:
+  crud_net:
+
+
